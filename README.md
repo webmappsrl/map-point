@@ -32,7 +32,7 @@ composer require wm/map-point
 You can display and edit a post gist geography(Point,4326) point on map
 
 ```php
-
+    use Wm\MapPoint\MapPoint;
     /**
      * Get the fields displayed by the resource.
      *
