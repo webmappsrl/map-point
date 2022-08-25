@@ -2,7 +2,7 @@
 
 ---
 
-[![Latest Version on Github](https://img.shields.io/packagist/v/eminiarts/nova-tabs.svg?style=flat)](https://packagist.org/packages/eminiarts/nova-tabs)
+[![Version](http://poser.pugx.org/wm/map-point/version)](https://packagist.org/packages/wm/map-point)
 
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -20,7 +20,7 @@
 You can install the package in to a Laravel app that uses [Nova](https://nova.laravel.com) via composer:
 
 ```bash
-composer require webmappsrl/map-point
+composer require wm/map-point
 ```
 
 ## Usage
