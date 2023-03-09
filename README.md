@@ -31,7 +31,8 @@ add  in ``` "repositories"``` array  attribute og ```composer.json```
 ```php 
         {
             "type": "path",
-            "url": "./nova-components/map-point"
+            "url": "./nova-components/map-point",
+            "canonical": false
         }
 
 ```
