@@ -27,13 +27,18 @@ composer require wm/map-point
 ## Develop
 create a```nova-components``` folder in the root of the project where you want to develop.
 Clone map-point inside.
-add  in ``` "repositories"``` array  attribute og ```composer.json```  
+add  in ``` "repositories"``` array  attribute of ```composer.json```  
 ```php 
         {
             "type": "path",
-            "url": "./nova-components/map-point",
-            "canonical": false
+            "url": "./nova-components/map-point"
         }
+
+```
+
+modify  in ``` "requires"``` object  attribute of ```composer.json```  
+```php 
+    "wm/map-point": "*",
 
 ```
 in the first time
