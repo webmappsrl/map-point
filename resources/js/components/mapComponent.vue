@@ -1,38 +1,46 @@
-
 <template>
-      <div class="flex flex-col md:flex-row" index="1">
-        <div class="px-6 md:px-8 mt-2 md:mt-0 w-full md:w-1/5 md:py-5">
-          <label for="user-update-ec-poi-100-belongs-to-field" class="inline-block pt-2 leading-tight">
-            Lng
-          </label>
-        </div>
-        <div class="mt-1 md:mt-0 pb-5 px-6 md:px-8 md:w-3/5 w-full md:py-5">
-          <div class="flex items-center space-x-2"><!---->
-            <div class="flex relative w-full"> 
-              <input @input="updateLatLng(lat,lng)" v-model="lng" type="text" class="w-full form-control form-input form-input-bordered">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col md:flex-row" index="1">
-        <div class="px-6 md:px-8 mt-2 md:mt-0 w-full md:w-1/5 md:py-5">
-          <label for="user-update-ec-poi-100-belongs-to-field" class="inline-block pt-2 leading-tight">
-            Lat
-          </label>
-        </div>
-        <div class="mt-1 md:mt-0 pb-5 px-6 md:px-8 md:w-3/5 w-full md:py-5">
-          <div class="flex items-center space-x-2"><!---->
-            <div class="flex relative w-full"> 
-              <input @input="updateLatLng(lat,lng)" v-model="lat" type="text" class="w-full form-control form-input form-input-bordered">
-            </div>
-          </div>
-        </div>
-      </div>
-
-    <div id="container">
-        <div :id="mapRef" class="wm-map"></div>
+  <div class="flex-container">
+    <div class="flex-item">
+        <label class="inline-block pt-2 leading-tight">
+          Latitude
+        </label>
+        <input @input="updateLatLng(lat,lng)" v-model="lat" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg">
     </div>
+    <div class="flex-item">
+        <label class="inline-block pt-2 leading-tight">
+          Longitude
+        </label>
+        <input @input="updateLatLng(lat,lng)" v-model="lng" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg">
+    </div>
+  </div>
+  <div id="container">
+    <div :id="mapRef" class="wm-map"></div>
+  </div> 
 </template>
+
+<style scoped>
+.form-input-black:focus {
+  border-color: grey;
+}
+.flex-container {
+    margin: 10px 10px 10px 0px;
+    width: 600px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: stretch;
+    align-items: stretch;
+}
+.flex-item {
+    order: 0;
+    flex: 1 1 auto;
+    align-self: auto;
+}
+.inline-block {
+    margin-right: 5px;
+}
+</style>
 
 <script>
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
@@ -48,8 +56,8 @@ export default {
     name: "Map",
     mixins: [FormField, HandlesValidationErrors],
     props: ['field', 'edit'],
-    data() { 
-        return { 
+    data() {
+        return {
             mapRef: `mapContainer-${Math.floor(Math.random() * 10000 + 10)}`,
             lat:null,
             lng:null,
@@ -61,10 +69,10 @@ export default {
                 radius: 100
             },
             mapDiv:null
-        } 
+        }
     },
     methods: {
-        initMap() {
+      initMap() {
             setTimeout(() => {
                 if (this.field.latlng !== undefined && this.field.latlng.length != 0) {
                     var center = this.field.latlng;
