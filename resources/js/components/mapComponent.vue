@@ -1,9 +1,46 @@
-
 <template>
-    <div id="container">
-        <div :id="mapRef" class="wm-map"></div>
+  <div class="flex-container">
+    <div class="flex-item">
+        <label class="inline-block pt-2 leading-tight">
+          Latitude
+        </label>
+        <input @input="updateLatLng(lat,lng)" v-model="lat" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg">
     </div>
+    <div class="flex-item">
+        <label class="inline-block pt-2 leading-tight">
+          Longitude
+        </label>
+        <input @input="updateLatLng(lat,lng)" v-model="lng" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg">
+    </div>
+  </div>
+  <div id="container">
+    <div :id="mapRef" class="wm-map"></div>
+  </div> 
 </template>
+
+<style scoped>
+.form-input-black:focus {
+  border-color: grey;
+}
+.flex-container {
+    margin: 10px 10px 10px 0px;
+    width: 600px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: stretch;
+    align-items: stretch;
+}
+.flex-item {
+    order: 0;
+    flex: 1 1 auto;
+    align-self: auto;
+}
+.inline-block {
+    margin-right: 5px;
+}
+</style>
 
 <script>
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
@@ -19,9 +56,23 @@ export default {
     name: "Map",
     mixins: [FormField, HandlesValidationErrors],
     props: ['field', 'edit'],
-    data() { return { mapRef: `mapContainer-${Math.floor(Math.random() * 10000 + 10)}` } },
+    data() {
+        return {
+            mapRef: `mapContainer-${Math.floor(Math.random() * 10000 + 10)}`,
+            lat:null,
+            lng:null,
+            currentCircle:null,
+            circleOption: {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 1,
+                radius: 100
+            },
+            mapDiv:null
+        }
+    },
     methods: {
-        initMap() {
+      initMap() {
             setTimeout(() => {
                 if (this.field.latlng !== undefined && this.field.latlng.length != 0) {
                     var center = this.field.latlng;
@@ -30,12 +81,11 @@ export default {
                 } else {
                     var center = DEFAULT_CENTER;
                 }
-                console.log(this.field);
                 const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
-                const mapDiv = L.map(this.mapRef).setView(center, defaultZoom);
+                this.map = L.map(this.mapRef).setView(center, defaultZoom);
                 const myZoom = {
-                    start: mapDiv.getZoom(),
-                    end: mapDiv.getZoom()
+                    start: this.map.getZoom(),
+                    end: this.map.getZoom()
                 };
 
                 L.tileLayer(
@@ -46,41 +96,43 @@ export default {
                         minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
                         id: "mapbox/streets-v11",
                     }
-                ).addTo(mapDiv);
-                var circleOption = {
-                    color: 'red',
-                    fillColor: '#f03',
-                    fillOpacity: 1,
-                    radius: 100
-                };
-                var circle = L.circle(center, circleOption).addTo(mapDiv);
+                ).addTo(this.map);
+                this.currentCircle = L.circle(center, this.circleOption).addTo(this.map);
+                this.lat = center[0];
+                this.lng = center[1];
                 if (this.edit) {
-                    mapDiv.on('click', (e) => {
-                        const currentRadius = circle.getRadius();
-                        mapDiv.removeLayer(circle);
-                        circle = new L.circle(e.latlng, { ...circleOption, ...{ radius: currentRadius } }).addTo(mapDiv);
-                        this.$emit('latlng', [e.latlng.lat, e.latlng.lng]);
+                    this.map.on('click', (e) => {
+                        this.updateLatLng(e.latlng.lat,e.latlng.lng);
                     });
-                    mapDiv.on('zoomstart', function () {
-                        myZoom.start = mapDiv.getZoom();
+                    this.map.on('zoomstart', function () {
+                        myZoom.start = this.map.getZoom();
                     });
-                    mapDiv.on('zoomend', function () {
-                        myZoom.end = mapDiv.getZoom();
+                    this.map.on('zoomend', function () {
+                        myZoom.end = this.map.getZoom();
                         var diff = myZoom.start - myZoom.end;
                         if (diff > 0) {
-                            circle.setRadius(circle.getRadius() * 2);
+                            this.currentCircle.setRadius(this.currentCircle.getRadius() * 2);
                         } else if (diff < 0) {
-                            circle.setRadius(circle.getRadius() / 2);
+                            this.currentCircle.setRadius(this.currentCircle.getRadius() / 2);
                         }
                     });
                 } else {
-                    mapDiv.dragging.disable();
-                    mapDiv.zoomControl.remove()
-                    mapDiv.scrollWheelZoom.disable();
-                    mapDiv.doubleClickZoom.disable();
+                    this.map.dragging.disable();
+                    this.map.zoomControl.remove()
+                    this.map.scrollWheelZoom.disable();
+                    this.map.doubleClickZoom.disable();
                 }
             }, 300);
 
+        },
+        updateLatLng(lat,lng) {
+            const currentRadius = this.currentCircle.getRadius();
+            this.map.removeLayer(this.currentCircle);
+            this.currentCircle = new L.circle({lat,lng}, { ...this.circleOption, ...{ radius: currentRadius } }).addTo(this.map);
+            this.$emit('latlng', [lat, lng]);
+            this.lat = lat;
+            this.lng = lng;
+            this.map.panTo(new L.LatLng(lat,lng));
         }
     },
     mounted() {
