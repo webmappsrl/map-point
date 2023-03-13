@@ -53,6 +53,9 @@
 .form-input-black:focus {
   border-color: grey;
 }
+.form-input {
+  width: 100%;
+}
 
 .flex-container {
   margin: 10px 10px 10px 0px;
@@ -68,6 +71,7 @@
 .flex-latitude {
   flex: 1 0 25%;
   align-self: auto;
+  margin-right: 5px;
 }
 
 .flex-longitude {
