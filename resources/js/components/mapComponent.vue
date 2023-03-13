@@ -1,16 +1,22 @@
 <template>
   <div class="flex-container">
-    <div class="flex-item">
+    <div class="flex-latitude">
         <label class="inline-block pt-2 leading-tight">
           Latitude
         </label>
         <input @input="updateLatLng(lat,lng)" v-model="lat" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg">
     </div>
-    <div class="flex-item">
+    <div class="flex-longitude">
         <label class="inline-block pt-2 leading-tight">
           Longitude
         </label>
         <input @input="updateLatLng(lat,lng)" v-model="lng" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg">
+    </div>
+    <div class="flex-street">
+        <label class="flex-street-label inline-block pt-2 leading-tight">
+            Street Name
+        </label>
+        <input type="text" :disabled="!edit" :class="{ 'form-input-black': edit }" class="flex-street-input form-control form-input form-input-bordered shadow-lg">
     </div>
   </div>
   <div id="container">
@@ -27,14 +33,40 @@
     width: 600px;
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: center;
-    align-content: stretch;
+    align-content: flex-start;
     align-items: stretch;
+    
 }
-.flex-item {
-    order: 0;
-    flex: 1 1 auto;
+.flex-latitude{
+    flex: 1 0 25%;
+    align-self: auto;
+}
+
+.flex-longitude{
+    flex: 1 0 25%;
+    align-self: auto;
+}
+
+.flex-street{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
+    margin-top: 10px;
+
+    flex: 1 0 100%;
+    align-self: auto;
+}
+.flex-street-label{
+    flex: 0 0 auto;
+    align-self: auto;
+}
+
+.flex-street-input{
+    flex: 1 0 auto;
     align-self: auto;
 }
 .inline-block {
@@ -73,6 +105,7 @@ export default {
     },
     methods: {
       initMap() {
+        console.log('stocazzo');
             setTimeout(() => {
                 if (this.field.latlng !== undefined && this.field.latlng.length != 0) {
                     var center = this.field.latlng;
