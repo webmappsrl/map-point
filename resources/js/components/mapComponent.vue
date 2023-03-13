@@ -105,7 +105,6 @@ export default {
     },
     methods: {
       initMap() {
-        console.log('stocazzo');
             setTimeout(() => {
                 if (this.field.latlng !== undefined && this.field.latlng.length != 0) {
                     var center = this.field.latlng;
