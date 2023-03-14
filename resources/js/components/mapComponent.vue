@@ -176,9 +176,6 @@ export default {
             }
           });
         } else {
-          this.map.dragging.disable();
-          this.map.zoomControl.remove();
-          this.map.scrollWheelZoom.disable();
           this.map.doubleClickZoom.disable();
         }
       }, 300);
