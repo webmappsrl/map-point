@@ -15,9 +15,10 @@
       <input @input="updateLatLng(lat, lng)" v-model="lng" type="text" :disabled="!edit"
         :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg" />
     </div>
-    <div class="flex-street">
-      <input @input="updateStreetAddress($event)" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }"
-        class="flex-street-input form-control form-input form-input-bordered shadow-lg" placeholder="Search by Address" />
+    <div class="flex-street" v-if="edit">
+      <input @input="updateStreetAddress($event)" type="text"
+        class="form-input-black flex-street-input form-control form-input form-input-bordered shadow-lg"
+        placeholder="Search by Address" />
     </div>
   </div>
   <div id="container">
@@ -96,6 +97,7 @@ import axios from "axios";
 import { FormField, HandlesValidationErrors } from "laravel-nova";
 
 const DEFAULT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const VERSION_IMAGE = '<img class="version-image" src="https://camo.githubusercontent.com/eb7682183efd616d92dcd8bd3697027c739a7fc8df6465fe6a2413c061aa183c/687474703a2f2f706f7365722e707567782e6f72672f776d2f6d61702d706f696e742f76657273696f6e">';
 const DEFAULT_ATTRIBUTION =
   '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [42, 12];
@@ -148,7 +150,7 @@ export default {
           end: this.map.getZoom()
         };
         L.tileLayer(this.field.tiles ?? DEFAULT_TILES, {
-          attribution: this.field.attribution ?? DEFAULT_ATTRIBUTION,
+          attribution: `${this.field.attribution ?? DEFAULT_ATTRIBUTION}, ${VERSION_IMAGE}`,
           maxZoom: this.field.maxZoom ?? DEFAULT_MAXZOOM,
           minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
           id: "mapbox/streets-v11"
