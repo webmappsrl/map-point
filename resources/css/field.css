@@ -14,3 +14,6 @@
     z-index: 51!important;
 }
 
+.fullscreen-icon {
+    background-image: url(https://unpkg.com/leaflet.fullscreen@2.4.0/icon-fullscreen.svg)!important;
+}

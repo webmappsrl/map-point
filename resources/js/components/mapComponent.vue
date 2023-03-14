@@ -1,47 +1,23 @@
 <template>
   <div class="flex-container">
     <div class="flex-street">
-      <label
-        class="flex-street-label inline-block pt-2 leading-tight streetAddress"
-      >
+      <label class="flex-street-label inline-block pt-2 leading-tight streetAddress">
         {{ streetAddress }}
       </label>
     </div>
     <div class="flex-latitude">
       <label class="inline-block pt-2 leading-tight"> Latitude </label>
-      <input
-        @input="updateLatLng(lat, lng)"
-        v-model="lat"
-        type="text"
-        :disabled="!edit"
-        :class="{ 'form-input-black': edit }"
-        class="form-control form-input form-input-bordered shadow-lg"
-      />
+      <input @input="updateLatLng(lat, lng)" v-model="lat" type="text" :disabled="!edit"
+        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg" />
     </div>
     <div class="flex-longitude">
       <label class="inline-block pt-2 leading-tight"> Longitude </label>
-      <input
-        @input="updateLatLng(lat, lng)"
-        v-model="lng"
-        type="text"
-        :disabled="!edit"
-        :class="{ 'form-input-black': edit }"
-        class="form-control form-input form-input-bordered shadow-lg"
-      />
+      <input @input="updateLatLng(lat, lng)" v-model="lng" type="text" :disabled="!edit"
+        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg" />
     </div>
-
     <div class="flex-street">
-      <!-- <label class="flex-street-label inline-block pt-2 leading-tight">
-        Search by Address
-      </label> -->
-      <input
-        @input="updateStreetAddress($event)"
-        type="text"
-        :disabled="!edit"
-        :class="{ 'form-input-black': edit }"
-        class="flex-street-input form-control form-input form-input-bordered shadow-lg"
-        placeholder="Search by Address"
-      />
+      <input @input="updateStreetAddress($event)" type="text" :disabled="!edit" :class="{ 'form-input-black': edit }"
+        class="flex-street-input form-control form-input form-input-bordered shadow-lg" placeholder="Search by Address" />
     </div>
   </div>
   <div id="container">
@@ -53,6 +29,7 @@
 .form-input-black:focus {
   border-color: grey;
 }
+
 .form-input {
   width: 100%;
 }
@@ -111,10 +88,13 @@
 </style>
 
 <script>
-import { FormField, HandlesValidationErrors } from "laravel-nova";
 import "leaflet/dist/leaflet.css";
+import "leaflet.fullscreen/Control.FullScreen.js";
+import "leaflet.fullscreen/Control.FullScreen.css";
 import L from "leaflet";
 import axios from "axios";
+import { FormField, HandlesValidationErrors } from "laravel-nova";
+
 const DEFAULT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const DEFAULT_ATTRIBUTION =
   '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
@@ -122,6 +102,7 @@ const DEFAULT_CENTER = [42, 12];
 const DEFAULT_MINZOOM = 8;
 const DEFAULT_MAXZOOM = 17;
 const DEFAULT_DEFAULTZOOM = 8;
+
 export default {
   name: "Map",
   mixins: [FormField, HandlesValidationErrors],
@@ -156,7 +137,12 @@ export default {
           var center = DEFAULT_CENTER;
         }
         const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
-        this.map = L.map(this.mapRef).setView(center, defaultZoom);
+        this.map = L.map(this.mapRef, {
+          fullscreenControl: true,
+          fullscreenControlOptions: {
+            position: "topleft"
+          }
+        }).setView(center, defaultZoom);
         const myZoom = {
           start: this.map.getZoom(),
           end: this.map.getZoom()
