@@ -64,7 +64,6 @@
   align-content: flex-start;
   align-items: flex-start;
   margin-top: 10px;
-
   flex: 1 0 100%;
   align-self: auto;
 }
@@ -134,15 +133,12 @@ export default {
   methods: {
     initMap() {
       setTimeout(() => {
-
         this.center = this.field.center ?? DEFAULT_CENTER;
         this.buildMap();
-
         this.myZoom = {
           start: this.map.getZoom(),
           end: this.map.getZoom()
         };
-
         this.buildDeleteGeometry();
         if (this.field.latlng != null && this.field.latlng[0] != null && this.field.latlng[1] != null) {
           this.currentCircle = L.circle(this.field.latlng, this.circleOption).addTo(
