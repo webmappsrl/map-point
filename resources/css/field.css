@@ -1,6 +1,6 @@
 /* Nova Field CSS */
 .wm-map {
-    width:600px;
+    width: 600px;
     height: 400px;
 }
 .index-view .wm-map  {
@@ -13,4 +13,19 @@
 .leaflet-bottom, .leaflet-top {
     z-index: 51!important;
 }
-
+.fullscreen-icon {
+    background-image: url(https://unpkg.com/leaflet.fullscreen@2.4.0/icon-fullscreen.svg)!important;
+}
+.version-image {
+    display: unset!important;
+    height: inherit;
+}
+.leaflet-control-attribution {
+    padding-right: 0!important;
+}
+.delete-button {
+    width: 35px;
+    height: 35px;
+    padding: 4px;
+    background-color: white;
+}
