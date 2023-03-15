@@ -81,7 +81,7 @@ You can display and edit a post gist geography(Point,4326) point on map
             ID::make()->sortable(),
                 ...
             MapPoint::make('geometry')->withMeta([
-                'center' => ["42", "10"],
+                'center' => [42, 10],
                 'attribution' => '<a href="https://webmapp.it/">Webmapp</a> contributors',
                 'tiles' => 'https://api.webmapp.it/tiles/{z}/{x}/{y}.png',
                 'minZoom' => 8,
