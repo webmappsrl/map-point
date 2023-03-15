@@ -23,3 +23,9 @@
 .leaflet-control-attribution {
     padding-right: 0!important;
 }
+.delete-button {
+    width: 30px;
+    height: 30px;
+    padding: 4px;
+    background-color: white;
+}

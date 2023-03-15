@@ -65,6 +65,10 @@ class MapPoint extends Field
     {
         $lat = $latlon[0];
         $lon = $latlon[1];
-        return DB::select("SELECT ST_GeomFromText('POINT($lon $lat)') as g")[0]->g;
+        if ($lat != null && $lon != null) {
+            return DB::select("SELECT ST_GeomFromText('POINT($lon $lat)') as g")[0]->g;
+        } else {
+            return null;
+        }
     }
 }

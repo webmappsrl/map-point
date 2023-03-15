@@ -122,29 +122,31 @@ export default {
         radius: 100
       },
       mapDiv: null,
-      streetAddress: null
+      streetAddress: null,
+      center: null,
+      deleteIcon: null
     };
   },
   methods: {
     initMap() {
       setTimeout(() => {
-        if (this.field.latlng !== undefined && this.field.latlng.length != 0) {
-          var center = this.field.latlng;
-        } else if (
-          this.field.center !== undefined &&
-          this.field.latlng.center != 0
-        ) {
-          var center = this.field.center;
-        } else {
-          var center = DEFAULT_CENTER;
-        }
+
+        this.center = this.field.center ?? DEFAULT_CENTER;
         const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
+        var currentView = this.center;
+        if (this.field.latlng != null && this.field.latlng[0] != null && this.field.latlng[1] != null) {
+          this.lat = this.field.latlng[0];
+          this.lng = this.field.latlng[1];
+          this.reverseGeoCoding(this.lat, this.lng);
+          currentView = this.field.latlng;
+        }
         this.map = L.map(this.mapRef, {
           fullscreenControl: true,
           fullscreenControlOptions: {
             position: "topleft"
           }
-        }).setView(center, defaultZoom);
+        }).setView(currentView, defaultZoom);
+
         const myZoom = {
           start: this.map.getZoom(),
           end: this.map.getZoom()
@@ -155,15 +157,39 @@ export default {
           minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
           id: "mapbox/streets-v11"
         }).addTo(this.map);
-        this.currentCircle = L.circle(center, this.circleOption).addTo(
-          this.map
-        );
-        this.lat = center[0];
-        this.lng = center[1];
-        this.reverseGeoCoding(this.lat, this.lng);
+        L.Control.deleteGeometry = L.Control.extend({
+          onAdd: (map) => {
+            this.deleteIcon = L.DomUtil.create('div')
+            L.DomUtil.addClass(this.deleteIcon, 'delete-button');
+            var img = L.DomUtil.create('img');
+            img.src = 'https://cdn-icons-png.flaticon.com/512/2891/2891491.png';
+            this.deleteIcon.appendChild(img);
+            L.DomEvent.on(this.deleteIcon, "click", (e) => {
+              L.DomEvent.stopPropagation(e);
+              this.updateLatLng(null, null);
+              this.deleteIcon.style.visibility = "hidden";
+            });
+            return this.deleteIcon;
+          },
+          onRemove: function (map) {
+            // Nothing to do here
+          }
+        });
+        L.control.deleteGeometry = function (opts) {
+          return new L.Control.deleteGeometry(opts);
+        }
+        L.control.deleteGeometry({ position: 'topright' }).addTo(this.map);
+        if (this.field.latlng != null && this.field.latlng[0] != null && this.field.latlng[1] != null) {
+          this.currentCircle = L.circle(this.field.latlng, this.circleOption).addTo(
+            this.map
+          );
+        } else {
+          this.deleteIcon.style.visibility = "hidden";
+        }
         if (this.edit) {
           this.map.on("click", (e) => {
             this.updateLatLng(e.latlng.lat, e.latlng.lng);
+            this.deleteIcon.style.visibility = "visible";
           });
           this.map.on("zoomstart", () => {
             myZoom.start = this.map.getZoom();
@@ -183,22 +209,26 @@ export default {
       }, 300);
     },
     updateLatLng(lat, lng) {
-      const currentRadius = this.currentCircle.getRadius();
-      this.map.removeLayer(this.currentCircle);
-      this.currentCircle = new L.circle(
-        { lat, lng },
-        { ...this.circleOption, ...{ radius: currentRadius } }
-      ).addTo(this.map);
-      this.$emit("latlng", [lat, lng]);
+      if (this.currentCircle != null) {
+        this.map.removeLayer(this.currentCircle);
+      }
+      if (lat != null && lng != null) {
+        this.currentCircle = new L.circle(
+          { lat, lng },
+          this.circleOption
+        ).addTo(this.map);
+        this.map.panTo(new L.LatLng(lat, lng));
+        this.reverseGeoCoding(lat, lng);
+      } else {
+        this.map.panTo(new L.LatLng(this.center[0], this.center[1]));
+      }
       this.lat = lat;
       this.lng = lng;
-      this.map.panTo(new L.LatLng(lat, lng));
-      this.reverseGeoCoding(this.lat, this.lng);
+      this.$emit("latlng", [lat, lng]);
     },
     async updateStreetAddress(event) {
       clearTimeout(this.debounce);
       this.debounce = setTimeout(async () => {
-        console.log(event.target.value);
         try {
           var res = await axios.get(
             `https://nominatim.openstreetmap.org/search.php?q=${event.target.value}&polygon_geojson=1&format=jsonv2`
@@ -207,7 +237,6 @@ export default {
           const lng = res.data[0].lon;
           this.updateLatLng(lat, lng);
         } catch (_) {
-          window.alert("Error try again later");
         }
       }, 1000);
     },
@@ -217,7 +246,6 @@ export default {
         var res = await axios.get(api);
         this.streetAddress = res.data.display_name;
       } catch (_) {
-        window.alert("Error try again later");
       }
     }
   },
