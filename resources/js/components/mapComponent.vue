@@ -124,7 +124,11 @@ export default {
       mapDiv: null,
       streetAddress: null,
       center: null,
-      deleteIcon: null
+      deleteIcon: null,
+      myZoom: {
+        start: 0,
+        end: 0
+      }
     };
   },
   methods: {
@@ -132,53 +136,14 @@ export default {
       setTimeout(() => {
 
         this.center = this.field.center ?? DEFAULT_CENTER;
-        const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
-        var currentView = this.center;
-        if (this.field.latlng != null && this.field.latlng[0] != null && this.field.latlng[1] != null) {
-          this.lat = this.field.latlng[0];
-          this.lng = this.field.latlng[1];
-          this.reverseGeoCoding(this.lat, this.lng);
-          currentView = this.field.latlng;
-        }
-        this.map = L.map(this.mapRef, {
-          fullscreenControl: true,
-          fullscreenControlOptions: {
-            position: "topleft"
-          }
-        }).setView(currentView, defaultZoom);
+        this.buildMap();
 
-        const myZoom = {
+        this.myZoom = {
           start: this.map.getZoom(),
           end: this.map.getZoom()
         };
-        L.tileLayer(this.field.tiles ?? DEFAULT_TILES, {
-          attribution: `${this.field.attribution ?? DEFAULT_ATTRIBUTION}, ${VERSION_IMAGE}`,
-          maxZoom: this.field.maxZoom ?? DEFAULT_MAXZOOM,
-          minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
-          id: "mapbox/streets-v11"
-        }).addTo(this.map);
-        L.Control.deleteGeometry = L.Control.extend({
-          onAdd: (map) => {
-            this.deleteIcon = L.DomUtil.create('div')
-            L.DomUtil.addClass(this.deleteIcon, 'delete-button');
-            var img = L.DomUtil.create('img');
-            img.src = 'https://cdn-icons-png.flaticon.com/512/2891/2891491.png';
-            this.deleteIcon.appendChild(img);
-            L.DomEvent.on(this.deleteIcon, "click", (e) => {
-              L.DomEvent.stopPropagation(e);
-              this.updateLatLng(null, null);
-              this.deleteIcon.style.visibility = "hidden";
-            });
-            return this.deleteIcon;
-          },
-          onRemove: function (map) {
-            // Nothing to do here
-          }
-        });
-        L.control.deleteGeometry = function (opts) {
-          return new L.Control.deleteGeometry(opts);
-        }
-        L.control.deleteGeometry({ position: 'topright' }).addTo(this.map);
+
+        this.buildDeleteGeometry();
         if (this.field.latlng != null && this.field.latlng[0] != null && this.field.latlng[1] != null) {
           this.currentCircle = L.circle(this.field.latlng, this.circleOption).addTo(
             this.map
@@ -187,16 +152,13 @@ export default {
           this.deleteIcon.style.visibility = "hidden";
         }
         if (this.edit) {
-          this.map.on("click", (e) => {
-            this.updateLatLng(e.latlng.lat, e.latlng.lng);
-            this.deleteIcon.style.visibility = "visible";
-          });
+          this.map.on("click", this.mapClick);
           this.map.on("zoomstart", () => {
-            myZoom.start = this.map.getZoom();
+            this.myZoom.start = this.map.getZoom();
           });
           this.map.on("zoomend", () => {
-            myZoom.end = this.map.getZoom();
-            var diff = myZoom.start - myZoom.end;
+            this.myZoom.end = this.map.getZoom();
+            var diff = this.myZoom.start - this.myZoom.end;
             if (diff > 0) {
               this.currentCircle.setRadius(this.currentCircle.getRadius() * 2);
             } else if (diff < 0) {
@@ -207,6 +169,53 @@ export default {
           this.map.doubleClickZoom.disable();
         }
       }, 300);
+    },
+    mapClick(e) {
+      this.updateLatLng(e.latlng.lat, e.latlng.lng);
+      this.deleteIcon.style.visibility = "visible";
+    },
+    buildMap() {
+      const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
+      var currentView = this.center;
+      if (this.field.latlng != null && this.field.latlng[0] != null && this.field.latlng[1] != null) {
+        this.lat = this.field.latlng[0];
+        this.lng = this.field.latlng[1];
+        this.reverseGeoCoding(this.lat, this.lng);
+        currentView = this.field.latlng;
+      }
+      this.map = L.map(this.mapRef, {
+        fullscreenControl: true,
+        fullscreenControlOptions: {
+          position: "topleft"
+        }
+      }).setView(currentView, defaultZoom);
+      L.tileLayer(this.field.tiles ?? DEFAULT_TILES, {
+        attribution: `${this.field.attribution ?? DEFAULT_ATTRIBUTION}, ${VERSION_IMAGE}`,
+        maxZoom: this.field.maxZoom ?? DEFAULT_MAXZOOM,
+        minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
+        id: "mapbox/streets-v11"
+      }).addTo(this.map);
+    },
+    buildDeleteGeometry() {
+      L.Control.deleteGeometry = L.Control.extend({
+        onAdd: () => {
+          this.deleteIcon = L.DomUtil.create('div')
+          L.DomUtil.addClass(this.deleteIcon, 'delete-button');
+          var img = L.DomUtil.create('img');
+          img.src = 'https://cdn-icons-png.flaticon.com/512/2891/2891491.png';
+          this.deleteIcon.appendChild(img);
+          L.DomEvent.on(this.deleteIcon, "click", (e) => {
+            L.DomEvent.stopPropagation(e);
+            this.updateLatLng(null, null);
+            this.deleteIcon.style.visibility = "hidden";
+          });
+          return this.deleteIcon;
+        }
+      });
+      L.control.deleteGeometry = function (opts) {
+        return new L.Control.deleteGeometry(opts);
+      }
+      L.control.deleteGeometry({ position: 'topright' }).addTo(this.map);
     },
     updateLatLng(lat, lng) {
       if (this.currentCircle != null) {
