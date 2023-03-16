@@ -164,6 +164,7 @@ export default {
           });
         } else {
           this.map.doubleClickZoom.disable();
+          this.deleteIcon.style.visibility = "hidden";
         }
       }, 300);
     },
