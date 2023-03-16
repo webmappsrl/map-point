@@ -8,17 +8,19 @@
     <div class="flex-latitude">
       <label class="inline-block pt-2 leading-tight"> Latitude </label>
       <input @input="updateLatLng(lat, lng)" v-model="lat" type="text" :disabled="!edit"
-        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg" />
+        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg"
+        v-on:keydown.enter.prevent=preventEnterPropagation />
     </div>
     <div class="flex-longitude">
       <label class="inline-block pt-2 leading-tight"> Longitude </label>
       <input @input="updateLatLng(lat, lng)" v-model="lng" type="text" :disabled="!edit"
-        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg" />
+        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg"
+        v-on:keydown.enter.prevent=preventEnterPropagation />
     </div>
     <div class="flex-street" v-if="edit">
       <input @input="updateStreetAddress($event)" type="text"
         class="form-input-black flex-street-input form-control form-input form-input-bordered shadow-lg"
-        placeholder="Search by Address" />
+        placeholder="Search by Address" v-on:keydown.enter.prevent=preventEnterPropagation />
     </div>
   </div>
   <div id="container">
@@ -96,7 +98,8 @@ import axios from "axios";
 import { FormField, HandlesValidationErrors } from "laravel-nova";
 
 const DEFAULT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const VERSION_IMAGE = '<img class="version-image" src="https://camo.githubusercontent.com/eb7682183efd616d92dcd8bd3697027c739a7fc8df6465fe6a2413c061aa183c/687474703a2f2f706f7365722e707567782e6f72672f776d2f6d61702d706f696e742f76657273696f6e">';
+const VERSION = "0.0.9"
+const VERSION_IMAGE = `<img class="version-image" src="https://img.shields.io/badge/wm--map--point-${VERSION}-blue">`;
 const DEFAULT_ATTRIBUTION =
   '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [42, 12];
@@ -118,7 +121,7 @@ export default {
         color: "red",
         fillColor: "#f03",
         fillOpacity: 1,
-        radius: 100
+        radius: 20
       },
       mapDiv: null,
       streetAddress: null,
@@ -127,13 +130,20 @@ export default {
       myZoom: {
         start: 0,
         end: 0
-      }
+      },
+      maxZoom: null,
+      minZoom: null,
+      attribution: null,
+      radius: 20
     };
   },
   methods: {
     initMap() {
       setTimeout(() => {
         this.center = this.field.center ?? DEFAULT_CENTER;
+        this.maxZoom = this.field.maxZoom ?? DEFAULT_MAXZOOM;
+        this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
+        this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
         this.buildMap();
         this.myZoom = {
           start: this.map.getZoom(),
@@ -163,6 +173,7 @@ export default {
           });
         } else {
           this.map.doubleClickZoom.disable();
+          this.deleteIcon.style.visibility = "hidden";
         }
       }, 300);
     },
@@ -186,9 +197,9 @@ export default {
         }
       }).setView(currentView, defaultZoom);
       L.tileLayer(this.field.tiles ?? DEFAULT_TILES, {
-        attribution: `${this.field.attribution ?? DEFAULT_ATTRIBUTION}, ${VERSION_IMAGE}`,
-        maxZoom: this.field.maxZoom ?? DEFAULT_MAXZOOM,
-        minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
+        attribution: `${this.attribution}, ${VERSION_IMAGE}`,
+        maxZoom: this.maxZoom,
+        minZoom: this.minZoom,
         id: "mapbox/streets-v11"
       }).addTo(this.map);
     },
@@ -214,15 +225,18 @@ export default {
       L.control.deleteGeometry({ position: 'topright' }).addTo(this.map);
     },
     updateLatLng(lat, lng) {
+      let currentRadius = 20;
       if (this.currentCircle != null) {
+        currentRadius = this.currentCircle.getRadius();
         this.map.removeLayer(this.currentCircle);
       }
       if (lat != null && lng != null) {
         this.currentCircle = new L.circle(
           { lat, lng },
-          this.circleOption
+          { ...this.circleOption, ...{ radius: currentRadius } }
         ).addTo(this.map);
         this.map.panTo(new L.LatLng(lat, lng));
+        this.map.setView([lat, lng], this.maxZoom);
         this.reverseGeoCoding(lat, lng);
       } else {
         this.map.panTo(new L.LatLng(this.center[0], this.center[1]));
@@ -253,6 +267,9 @@ export default {
       } catch (_) {
       }
     }
+  },
+  preventEnterPropagation: function (e) {
+    if (e) e.preventDefault();
   },
   mounted() {
     this.initMap();
