@@ -119,7 +119,7 @@ export default {
         color: "red",
         fillColor: "#f03",
         fillOpacity: 1,
-        radius: 100
+        radius: 20
       },
       mapDiv: null,
       streetAddress: null,
