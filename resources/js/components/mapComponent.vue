@@ -8,17 +8,19 @@
     <div class="flex-latitude">
       <label class="inline-block pt-2 leading-tight"> Latitude </label>
       <input @input="updateLatLng(lat, lng)" v-model="lat" type="text" :disabled="!edit"
-        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg" />
+        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg"
+        v-on:keydown.enter.prevent=preventEnterPropagation />
     </div>
     <div class="flex-longitude">
       <label class="inline-block pt-2 leading-tight"> Longitude </label>
       <input @input="updateLatLng(lat, lng)" v-model="lng" type="text" :disabled="!edit"
-        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg" />
+        :class="{ 'form-input-black': edit }" class="form-control form-input form-input-bordered shadow-lg"
+        v-on:keydown.enter.prevent=preventEnterPropagation />
     </div>
     <div class="flex-street" v-if="edit">
       <input @input="updateStreetAddress($event)" type="text"
         class="form-input-black flex-street-input form-control form-input form-input-bordered shadow-lg"
-        placeholder="Search by Address" />
+        placeholder="Search by Address" v-on:keydown.enter.prevent=preventEnterPropagation />
     </div>
   </div>
   <div id="container">
@@ -131,7 +133,8 @@ export default {
       },
       maxZoom: null,
       minZoom: null,
-      attribution: null
+      attribution: null,
+      radius: 20
     };
   },
   methods: {
@@ -222,13 +225,15 @@ export default {
       L.control.deleteGeometry({ position: 'topright' }).addTo(this.map);
     },
     updateLatLng(lat, lng) {
+      let currentRadius = 20;
       if (this.currentCircle != null) {
+        currentRadius = this.currentCircle.getRadius();
         this.map.removeLayer(this.currentCircle);
       }
       if (lat != null && lng != null) {
         this.currentCircle = new L.circle(
           { lat, lng },
-          this.circleOption
+          { ...this.circleOption, ...{ radius: currentRadius } }
         ).addTo(this.map);
         this.map.panTo(new L.LatLng(lat, lng));
         this.map.setView([lat, lng], this.maxZoom);
@@ -262,6 +267,9 @@ export default {
       } catch (_) {
       }
     }
+  },
+  preventEnterPropagation: function (e) {
+    if (e) e.preventDefault();
   },
   mounted() {
     this.initMap();
