@@ -128,13 +128,19 @@ export default {
       myZoom: {
         start: 0,
         end: 0
-      }
+      },
+      maxZoom: null,
+      minZoom: null,
+      attribution: null
     };
   },
   methods: {
     initMap() {
       setTimeout(() => {
         this.center = this.field.center ?? DEFAULT_CENTER;
+        this.maxZoom = this.field.maxZoom ?? DEFAULT_MAXZOOM;
+        this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
+        this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
         this.buildMap();
         this.myZoom = {
           start: this.map.getZoom(),
@@ -188,9 +194,9 @@ export default {
         }
       }).setView(currentView, defaultZoom);
       L.tileLayer(this.field.tiles ?? DEFAULT_TILES, {
-        attribution: `${this.field.attribution ?? DEFAULT_ATTRIBUTION}, ${VERSION_IMAGE}`,
-        maxZoom: this.field.maxZoom ?? DEFAULT_MAXZOOM,
-        minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
+        attribution: `${this.attribution}, ${VERSION_IMAGE}`,
+        maxZoom: this.maxZoom,
+        minZoom: this.minZoom,
         id: "mapbox/streets-v11"
       }).addTo(this.map);
     },
@@ -225,6 +231,7 @@ export default {
           this.circleOption
         ).addTo(this.map);
         this.map.panTo(new L.LatLng(lat, lng));
+        this.map.setView([lat, lng], this.maxZoom);
         this.reverseGeoCoding(lat, lng);
       } else {
         this.map.panTo(new L.LatLng(this.center[0], this.center[1]));
