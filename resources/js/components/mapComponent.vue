@@ -96,7 +96,8 @@ import axios from "axios";
 import { FormField, HandlesValidationErrors } from "laravel-nova";
 
 const DEFAULT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const VERSION_IMAGE = '<img class="version-image" src="https://camo.githubusercontent.com/eb7682183efd616d92dcd8bd3697027c739a7fc8df6465fe6a2413c061aa183c/687474703a2f2f706f7365722e707567782e6f72672f776d2f6d61702d706f696e742f76657273696f6e">';
+const VERSION = "0.0.9"
+const VERSION_IMAGE = `<img class="version-image" src="https://img.shields.io/badge/wm--map--point-${VERSION}-blue">`;
 const DEFAULT_ATTRIBUTION =
   '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [42, 12];
