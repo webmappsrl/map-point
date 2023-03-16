@@ -227,7 +227,7 @@ export default {
     updateLatLng(lat, lng) {
       let currentRadius = 20;
       if (this.currentCircle != null) {
-        currentRadius = this.currentCircle.getRadius();
+        currentRadius = this.currentCircle.getRadius() > 20 ? 20 : this.currentCircle.getRadius();
         this.map.removeLayer(this.currentCircle);
       }
       if (lat != null && lng != null) {
