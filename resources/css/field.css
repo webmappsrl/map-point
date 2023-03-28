@@ -29,3 +29,60 @@
     padding: 4px;
     background-color: white;
 }
+.form-input-black:focus {
+    border-color: grey;
+  }
+  
+  .form-input {
+    width: 100%;
+  }
+  
+  .flex-container {
+    margin: 10px 10px 10px 0px;
+    width: 600px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    align-items: stretch;
+  }
+  
+  .flex-latitude {
+    flex: 1 0 25%;
+    align-self: auto;
+    margin-right: 5px;
+  }
+  
+  .flex-longitude {
+    flex: 1 0 25%;
+    align-self: auto;
+  }
+  .flex-street {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
+    margin-top: 10px;
+    flex: 1 0 100%;
+    align-self: auto;
+  }
+  
+  .flex-street-label {
+    flex: 0 0 auto;
+    align-self: auto;
+  }
+  
+  .flex-street-input {
+    flex: 1 0 auto;
+    align-self: auto;
+  }
+  
+  .inline-block {
+    margin-right: 5px;
+  }
+  
+  .streetAddress {
+    color: rgba(var(--colors-primary-500));
+  }

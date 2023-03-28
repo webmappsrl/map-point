@@ -33,17 +33,13 @@ add  in ``` "repositories"``` array  attribute of ```composer.json```
             "type": "path",
             "url": "./nova-components/map-point"
         }
-
 ```
 
 modify  in ``` "requires"``` object  attribute of ```composer.json```  
 ```php 
     "wm/map-point": "*",
-
 ```
-in the first time
-
-launch
+launch inside the repository hosting the field
 ```bash
     cd vendor/laravel/nova && npm install
 ```
@@ -52,12 +48,10 @@ launch
 ```bash
     composer update wm/map-point
 ```
-
-
-
-
-
-
+launch inside field
+```bash
+    npm install
+```
 
 ## Usage
 

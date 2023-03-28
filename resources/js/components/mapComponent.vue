@@ -28,67 +28,6 @@
   </div>
 </template>
 
-<style scoped>
-.form-input-black:focus {
-  border-color: grey;
-}
-
-.form-input {
-  width: 100%;
-}
-
-.flex-container {
-  margin: 10px 10px 10px 0px;
-  width: 600px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: flex-start;
-  align-items: stretch;
-}
-
-.flex-latitude {
-  flex: 1 0 25%;
-  align-self: auto;
-  margin-right: 5px;
-}
-
-.flex-longitude {
-  flex: 1 0 25%;
-  align-self: auto;
-}
-
-.flex-street {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: flex-start;
-  align-items: flex-start;
-  margin-top: 10px;
-  flex: 1 0 100%;
-  align-self: auto;
-}
-
-.flex-street-label {
-  flex: 0 0 auto;
-  align-self: auto;
-}
-
-.flex-street-input {
-  flex: 1 0 auto;
-  align-self: auto;
-}
-
-.inline-block {
-  margin-right: 5px;
-}
-
-.streetAddress {
-  color: rgba(var(--colors-primary-500));
-}
-</style>
-
 <script>
 import "leaflet/dist/leaflet.css";
 import "leaflet.fullscreen/Control.FullScreen.js";
@@ -138,6 +77,24 @@ export default {
     };
   },
   methods: {
+    /**
+     * The function initMap() is used for initializing a map. It sets certain properties of the map based on the field object passed in. 
+     * If some of these properties are not defined, default values are used. 
+     * A timeout of 300 milliseconds is set before the function executes, which allows the map to properly load before any changes are made to it. 
+     * The function performs the following tasks in order:
+     * Sets the center of the map to the value of this.field.center, or DEFAULT_CENTER if this.field.center is not defined.
+     * Sets the maximum zoom level of the map to the value of this.field.maxZoom, or DEFAULT_MAXZOOM if this.field.maxZoom is not defined.
+     * Sets the minimum zoom level of the map to the value of this.field.minZoom, or DEFAULT_MINZOOM if this.field.minZoom is not defined.
+     * Sets the attribution for the map to the value of this.field.attribution, or DEFAULT_ATTRIBUTION if this.field.attribution is not defined.
+     * Calls the buildMap() function to build the map with the specified properties.
+     * Sets myZoom to an object with start and end properties, both set to the current zoom level of the map.
+     * Calls the buildDeleteGeometry() function.
+     * If this.field.latlng is defined and its values are not null, a circle with options this.circleOption is created at the specified latlng value and added to the map. 
+     * Otherwise, the deleteIcon's visibility is set to "hidden".
+     * If this.edit is truthy, event listeners are attached to the map for click, zoomstart, and zoomend events. 
+     * On zoom events, the radius of the currentCircle is modified based on the difference between the start and end zoom levels. 
+     * Otherwise, double-click zoom is disabled and the visibility of the deleteIcon is set to "hidden".
+     */
     initMap() {
       setTimeout(() => {
         this.center = this.field.center ?? DEFAULT_CENTER;
@@ -177,10 +134,28 @@ export default {
         }
       }, 300);
     },
+    /**
+     * @param {*} e
+     * The code defines a function mapClick which takes an event object (e) as input. 
+     * The function first calls another function called updateLatLng with two arguments, namely the lat and lng properties of the latlng object nested inside the input e object. 
+     * This updateLatLng function likely updates some UI element(s) to display the new latitude and longitude. 
+     * The function then sets the CSS property visibility of a particular deleteIcon element to "visible". 
+     * This suggests that the deleteIcon is hidden by default and only made visible after the user clicks on the map. No value is returned by the function.
+     */
     mapClick(e) {
       this.updateLatLng(e.latlng.lat, e.latlng.lng);
       this.deleteIcon.style.visibility = "visible";
     },
+    /**
+     * This is a function called buildMap() that creates a Leaflet map.
+     * It first sets the default zoom level, using the nullish coalescing operator, which takes the value of this.field.defaultZoom if it's not null, and DEFAULT_DEFAULTZOOM otherwise.
+     * It then sets the currentView as the center of the map by default.
+     * It checks if the field object has a latlng array, and if it's not null or undefined, it sets the lat and lng properties of the map to the values in the latlng array, 
+     * then uses reverseGeocoding() function to get the address for these coordinates. It also sets the currentView to the latlng coordinates.
+     * It creates a Leaflet map object, and stores it in the map property of the object.
+     * It adds a tile layer to the map, using the L.tileLayer() method, with the field.tiles URL or a default one, DEFAULT_TILES, along with attribution and version image. 
+     * Finally, it adds this layer to the map by calling the addTo() method on the map object.
+     */
     buildMap() {
       const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
       var currentView = this.center;
@@ -203,6 +178,14 @@ export default {
         id: "mapbox/streets-v11"
       }).addTo(this.map);
     },
+    /**
+     * The code defines a new Leaflet control called 'deleteGeometry' that is added to the map at the top right position. 
+     * When clicked, this control deletes any drawn geometry and hides itself. 
+     * The 'deleteGeometry' control is defined through the use of a Leaflet Control.extend method. 
+     * The control's onAdd function is defined to return a div element with a delete button represented by an image.
+     * When the delete button is clicked, a DOM event listener stops the event from propagating, updates the latitude and longitude coordinates of the drawn geometry to null, and hides the delete button.
+     * The control is then instantiated with a position option of 'topright' and added to the Leaflet map.
+     */
     buildDeleteGeometry() {
       L.Control.deleteGeometry = L.Control.extend({
         onAdd: () => {
@@ -224,6 +207,19 @@ export default {
       }
       L.control.deleteGeometry({ position: 'topright' }).addTo(this.map);
     },
+    /**
+     * @param {*} lat 
+     * @param {*} lng 
+     * This method is used to update the latitude and longitude in a Leaflet map with a circle overlay. It takes in two parameters: lat for latitude and lng for longitude. 
+     * First, it initializes a variable currentRadius to 20. If there is already a circle overlay on the map (this.currentCircle is not null), 
+     * it sets currentRadius to either the radius of the current circle or 20, whichever is smaller. 
+     * It also removes the current circle overlay from the map using the removeLayer method.
+     * Next, it creates a new circle overlay using the lat and lng coordinates, and sets its radius using currentRadius. 
+     * It adds this new circle overlay to the map and pans to the location using the panTo method. It also sets the view of the map to the new location using setView. 
+     * Finally, it calls the reverseGeoCoding method to perform reverse geocoding (converting the coordinates to an address).
+     * If lat or lng is null, it pans to the center coordinates (this.center) of the map.
+     * Finally, it sets the lat and lng properties of the component to the new values, and emits a latlng event with an array of [lat, lng].
+     */
     updateLatLng(lat, lng) {
       let currentRadius = 20;
       if (this.currentCircle != null) {
@@ -245,6 +241,18 @@ export default {
       this.lng = lng;
       this.$emit("latlng", [lat, lng]);
     },
+    /**
+     * @param {*} event 
+     * The code is an async function named updateStreetAddress that takes an event object as its parameter. 
+     * It starts by clearing a previously set timeout using the clearTimeout function.
+     * A new timeout is then defined using setTimeout with a delay of 1000 milliseconds which executes the callback function asynchronously. 
+     * The callback function makes an HTTP GET request to an API endpoint exposed through the axios library using a URL string that includes the event.target.value parameter value. 
+     * The API query parameters include search query q (event.target.value) and output format parameters polygon_geojson=1 and format=jsonv2.
+     * If the API query returns successfully, the response object res has the first object's latitude and longitude values extracted and stored as lat and lng respectively. 
+     * The updateLatLng function is then called with arguments lat and lng to update the data model with these new values.
+     * If the API query doesn't return a success response, the catch block catches the error and does nothing.
+     * The function ultimately returns nothing since it does not have an explicit return statement.
+     */
     async updateStreetAddress(event) {
       clearTimeout(this.debounce);
       this.debounce = setTimeout(async () => {
@@ -259,6 +267,15 @@ export default {
         }
       }, 1000);
     },
+    /**
+     * @param {*} lat 
+     * @param {*} lng 
+     * This code defines an asynchronous function called "reverseGeoCoding" that takes two parameters, "lat" and "lng", representing latitude and longitude coordinates, respectively. 
+     * Within the function, a URL is constructed using the input parameters and an API key, with the variable name "api". 
+     * The function then attempts to send a GET request to this API using the axios library. 
+     * If the request is successful, the "display_name" field of the response data is assigned to the "streetAddress" property of the current object. 
+     * If the request fails for any reason, the catch block does nothing.
+     */
     async reverseGeoCoding(lat, lng) {
       var api = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
       try {
@@ -268,6 +285,14 @@ export default {
       }
     }
   },
+  /**
+   * @param {*} e 
+   * This code defines a function called "preventEnterPropagation" that takes an event object "e" as its parameter. 
+   * Inside the function, it checks if the event object is truthy (i.e. not null, undefined, false, 0, or ""), 
+   * and if so, it calls the "preventDefault" method on the event object. 
+   * This method prevents the default action associated with the event (e.g. submitting a form or clicking a link) from occurring. 
+   * In this specific case, the function is likely used to prevent an unwanted submit or click event when the user presses the "Enter" key.
+   */
   preventEnterPropagation: function (e) {
     if (e) e.preventDefault();
   },
