@@ -187,6 +187,7 @@ export default {
      * The control is then instantiated with a position option of 'topright' and added to the Leaflet map.
      */
     buildDeleteGeometry() {
+      // Extend the Leaflet Control class to create a custom deleteGeometry control
       L.Control.deleteGeometry = L.Control.extend({
         onAdd: () => {
           this.deleteIcon = L.DomUtil.create('div')
@@ -194,6 +195,7 @@ export default {
           var img = L.DomUtil.create('img');
           img.src = 'https://cdn-icons-png.flaticon.com/512/2891/2891491.png';
           this.deleteIcon.appendChild(img);
+          // Add a click event listener to the delete button
           L.DomEvent.on(this.deleteIcon, "click", (e) => {
             L.DomEvent.stopPropagation(e);
             this.updateLatLng(null, null);
