@@ -1,0 +1,10 @@
+{
+  "versioning": {
+    "type": "semver"
+  },
+  "release": {
+    "changelog": {
+      "enabled": true
+    }
+  }
+}
