@@ -2,7 +2,6 @@
   "packages": {
     ".": {
       "package-name": "wm/map-point",
-      "release-type": "php-composer",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
       "draft": false,
