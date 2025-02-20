@@ -19,7 +19,7 @@ class MapPoint extends Field
     /**
      * Resolve the field's value.
      */
-    public function resolve($resource, $attribute = null)
+    public function resolve($resource, ?string $attribute = null): void
     {
         parent::resolve($resource, $attribute = null);
         $this->latlng = $this->geometryToLatLon($this->value);
