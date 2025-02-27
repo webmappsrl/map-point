@@ -25,24 +25,15 @@ class MapPoint extends Field
         $this->latlng = $this->geometryToLatLon($this->value);
         $this->withMeta(['latlng' => $this->latlng]);
     }
-    /**
-     * Hydrate the given attribute on the model based on the incoming request.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  string  $requestAttribute
-     * @param  object  $model
-     * @param  string  $attribute
-     * @return void
-     */
-    protected function fillAttributeFromRequest(
-        NovaRequest $request,
-        $requestAttribute,
-        $model,
-        $attribute
-    ) {
-        if ($request->exists($requestAttribute)) {
-            $lonLat = explode(',', $request[$requestAttribute]);
-            $model->{$attribute} = $this->latLonToGeometry($lonLat);
+
+    public function fillModelWithData(mixed $model, mixed $value, string $attribute)
+    {
+        $lonLat = explode(',', $value);
+        $value = $this->latLonToGeometry($lonLat);
+
+        $oldValue = $this->geometryToLatLon($model->{$attribute});
+        if ($value != $oldValue) {
+            parent::fillModelWithData($model, $value, $attribute);
         }
     }
 
