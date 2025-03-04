@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/webmappsrl/map-point/compare/v1.0.0...v1.0.1) (2025-03-04)
+
+
+### Bug Fixes
+
+* Substituted FillAttributeFromRequest with FillModelWithData to adhere to best practices oc:5018 ([#7](https://github.com/webmappsrl/map-point/issues/7)) ([f15ed72](https://github.com/webmappsrl/map-point/commit/f15ed720fef3b4d53751e4294b81e8cc13b571ee))
+
 ## [1.0.0](https://github.com/webmappsrl/map-point/compare/v0.0.10...v1.0.0) (2025-02-20)
 
 
