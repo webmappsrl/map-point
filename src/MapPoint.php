@@ -26,7 +26,7 @@ class MapPoint extends Field
         $this->withMeta(['latlng' => $this->latlng]);
     }
 
-    public function fillModelWithData(mixed $model, mixed $value, string $attribute)
+    public function fillModelWithData(object $model, mixed $value, string $attribute): void
     {
         $lonLat = explode(',', $value);
         $value = $this->latLonToGeometry($lonLat);
