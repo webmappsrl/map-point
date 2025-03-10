@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/webmappsrl/map-point/compare/v1.0.1...v1.0.2) (2025-03-10)
+
+
+### Bug Fixes
+
+* Changed FillModelWithDataDeclaration to adapt to Nova5 oc:5069 ([#9](https://github.com/webmappsrl/map-point/issues/9)) ([2675199](https://github.com/webmappsrl/map-point/commit/267519962980f28a927a00c5bc0f31032e85fa20))
+
 ## [1.0.1](https://github.com/webmappsrl/map-point/compare/v1.0.0...v1.0.1) (2025-03-04)
 
 
